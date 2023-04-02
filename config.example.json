@@ -1,0 +1,42 @@
+
+{
+    "DEV": {
+       "AppEnv": "dev",
+       "Host": "127.0.0.1",
+       "Port": 3000,
+       "Db": {
+          "Name": "p8ion",
+          "Username": "",
+          "Password": "",
+          "Port": 3306,
+          "Host": "",
+          "LogFile": "./logs/db.log"
+       }
+    },
+    "PROD": {
+       "AppEnv": "prod",
+       "Host": "",
+       "Port": 3000,
+       "Db": {
+          "Name": "p8ion",
+          "Username": "",
+          "Password": "",
+          "Port": 3306,
+          "Host": "",
+          "LogFile": ""
+       }
+    },
+    "DOCKER": {
+       "AppEnv": "docker",
+       "Host": "",
+       "Port": 3000,
+       "Db": {
+          "Name": "p8ion",
+          "Username": "",
+          "Password": "",
+          "Port": 3306,
+          "Host": "",
+          "LogFile": ""
+       }
+    }
+ }
