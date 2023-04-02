@@ -11,8 +11,8 @@ run:
 # watch:
 # 	reflex -s -r '\.go$$' make run
 
-# lint:
-# 	golangci-lint run
+lint:
+	golangci-lint run
 
 # fix:
 # 	golangci-lint run --fix
