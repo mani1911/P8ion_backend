@@ -23,6 +23,14 @@ type LoggerConfig struct {
 	Level    string
 }
 
+type AuthConfig struct {
+	OAuth2Key         string
+	OAuth2Secret      string
+	RedirectURL       string
+	TokenHourLifeSpan string
+	JWTSecret         string
+}
+
 type Config struct {
 	// PROD, DEV, DOCKER
 	AppEnv string
@@ -31,11 +39,17 @@ type Config struct {
 	Host string
 	Port uint
 
+	// Frontend URL
+	FrontendURL string
+
 	// Logger Config
 	Log LoggerConfig
 
 	// Database Config
 	Db DatabaseConfig
+
+	// Auth Config
+	Auth AuthConfig
 }
 
 // All configurations

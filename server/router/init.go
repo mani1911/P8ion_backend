@@ -11,6 +11,6 @@ var Router *gin.Engine
 func Init() {
 	Router = gin.Default()
 	Router.Use(middleware.LoggerMiddleware)
-
+	ApiRouter()
 	UserRouter()
 }

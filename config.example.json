@@ -11,6 +11,14 @@
           "Port": 3306,
           "Host": "",
           "LogFile": "./logs/db.log"
+       },
+       "Auth": {
+         "OAuth2Key": "",
+         "OAuth2Secret": "",
+         "RedirectURL": "http://localhost:8000/auth-callback.html",
+         "TokenHourLifeSpan": "5",
+         "JWTSecret": "secret",
+         "AdminHeader": ""
        }
     },
     "PROD": {
@@ -24,6 +32,14 @@
           "Port": 3306,
           "Host": "",
           "LogFile": ""
+       },
+       "Auth": {
+         "OAuth2Key": "",
+         "OAuth2Secret": "",
+         "RedirectURL": "http://localhost:8000/auth-callback.html",
+         "TokenHourLifeSpan": "5",
+         "JWTSecret": "secret",
+         "AdminHeader": ""
        }
     },
     "DOCKER": {
@@ -37,6 +53,14 @@
           "Port": 3306,
           "Host": "",
           "LogFile": ""
+       },
+       "Auth": {
+         "OAuth2Key": "",
+         "OAuth2Secret": "",
+         "RedirectURL": "http://localhost:8000/auth-callback.html",
+         "TokenHourLifeSpan": "5",
+         "JWTSecret": "secret",
+         "AdminHeader": ""
        }
     }
  }

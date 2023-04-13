@@ -12,6 +12,7 @@ import (
 
 type SignupRequest struct {
 	Username string `json:"username" binding:"required"`
+	Email    string `json: "email" binding:"required"`
 }
 
 func SignupUser(c *gin.Context) {
@@ -25,6 +26,7 @@ func SignupUser(c *gin.Context) {
 	user := model.User{
 		ID:       1,
 		Username: req.Username,
+		Email:    req.Email,
 	}
 
 	db := database.GetDB()
