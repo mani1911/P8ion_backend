@@ -77,7 +77,7 @@ func OAuthRequest(c *gin.Context) {
 				return
 			}
 
-			helper.SendResponse(c, http.StatusOK, jwtToken)
+			c.Redirect(http.StatusPermanentRedirect, fmt.Sprintf("%s/%s/?jwt=%s&user=%s&email=%s", frontendUrl, "oauth", jwtToken, userDetails.Username, userDetails.Email))
 			return
 		}
 		helper.SendError(c, http.StatusInternalServerError, "Unknown Error occurred, Try Again")
@@ -89,16 +89,11 @@ func OAuthRequest(c *gin.Context) {
 	jwtToken, err := authHelper.GenerateToken(userDetails.ID)
 	if err != nil {
 		fmt.Print("Token Not generated:", err)
-		helper.SendError(c, http.StatusInternalServerError, "Unknown Error occurred, Try Again")
+		c.Redirect(http.StatusPermanentRedirect, fmt.Sprintf("%s/%s/?error=%s", frontendUrl, "oauth", err.Error()))
 		return
 	}
 
-	// set cookies
-
-	c.SetCookie("jwt", jwtToken, 86400, "/", c.Request.URL.Hostname(), false, true)
-	c.SetCookie("username", Name, 86400, "/", c.Request.URL.Hostname(), false, true)
-
 	// redirect back to client
 	fmt.Print("CLient : ", frontendUrl)
-	c.Redirect(http.StatusPermanentRedirect, frontendUrl)
+	c.Redirect(http.StatusPermanentRedirect, fmt.Sprintf("%s/%s/?jwt=%s&user=%s&email=%s", frontendUrl, "oauth", jwtToken, userDetails.Username, userDetails.Email))
 }

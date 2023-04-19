@@ -11,6 +11,8 @@ require (
 	gorm.io/gorm v1.24.6
 )
 
+require github.com/gin-contrib/cors v1.4.0 // indirect
+
 require (
 	github.com/bytedance/sonic v1.8.6 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect

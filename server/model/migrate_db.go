@@ -10,6 +10,7 @@ func MigrateDB() {
 	for _, model := range []interface{}{
 		// Include models here to auto migrate
 		User{},
+		Image{},
 	} {
 		if err := db.AutoMigrate(&model); err != nil {
 			panic(err)
