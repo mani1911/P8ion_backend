@@ -2,12 +2,12 @@ package controller
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"os"
-	"strings"
 
 	"p8ion/database"
+	authHelper "p8ion/server/helpers/auth"
+	helper "p8ion/server/helpers/general"
 	"p8ion/server/model"
 	"p8ion/utils"
 
@@ -18,57 +18,24 @@ import (
 	"google.golang.org/api/vision/v1"
 )
 
-type SignupRequest struct {
-	Username string `json:"username" binding:"required"`
-	Email    string `json:"email" binding:"required"`
-}
-
 type User struct {
-	Username string `json:"username"`
-	Email    string `json:"email"`
+	ID       uint `gorm:"primarykey"`
+	Username string
+	Email    string
 }
 
 type Image struct {
-	Image64 string   `json:"image64"`
-	Content []string `json:"content"`
-}
-
-func SignupUser(c *gin.Context) {
-	var req SignupRequest
-
-	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.SendResponse(c, http.StatusBadRequest, err.Error())
-		return
-	}
-	println(req.Username)
-	user := model.User{
-		ID:       1,
-		Username: req.Username,
-		Email:    req.Email,
-	}
-
-	db := database.GetDB()
-
-	if err := db.Create(&user).Error; err != nil {
-		utils.SendResponse(c, http.StatusInternalServerError, err.Error())
-		return
-	}
-
-	utils.SendResponse(c, http.StatusOK, "User created successfully")
-}
-
-func Dummy(c *gin.Context) {
-	utils.SendResponse(c, http.StatusOK, "Hi User, This is a test route")
+	Image64 string `json:"image64"`
 }
 
 func ParseImage(c *gin.Context) {
+	db := database.GetDB()
+
 	var image64 Image
 	if err := c.ShouldBindBodyWith(&image64, binding.JSON); err != nil {
 		utils.SendResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	fmt.Print(image64)
-	c.JSON(http.StatusAccepted, &image64)
 
 	//Cloud Vision API
 	ctx := context.Background()
@@ -77,6 +44,7 @@ func ParseImage(c *gin.Context) {
 		utils.SendResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
+
 	service, err := vision.New(client)
 	if err != nil {
 		utils.SendResponse(c, http.StatusBadRequest, err.Error())
@@ -139,66 +107,61 @@ func ParseImage(c *gin.Context) {
 			Messages: []openai.ChatCompletionMessage{
 				{
 					Role:    openai.ChatMessageRoleUser,
-					Content: "Describe the following drugs " + drugsWithCommas + " in 100 words with common sideeffects.",
+					Content: "Describe the following drugs " + drugsWithCommas + " in 5 words with common sideeffects.",
 				},
 			},
 		},
 	)
 	if err != nil {
 		utils.SendResponse(c, http.StatusBadRequest, "Could not connect to GPT client")
+		return
 	}
 
 	// utils.SendResponse(c, http.StatusOK, resp.Choices[0].Message.Content)
-	drugDesc := strings.Split(resp.Choices[0].Message.Content, "\n\n")
-	utils.SendResponse(c, http.StatusOK, drugDesc)
+	//drugDesc := strings.Split(resp.Choices[0].Message.Content, "\n\n")
+	userID, err := authHelper.ValidateToken(c.Request.Header.Get("Authorization"))
+
+	//print(drugDesc)
+	print("User ID : ", userID)
+
+	var user User
+	result := db.First(&user, userID)
+	if result.Error != nil {
+		utils.SendResponse(c, http.StatusNotFound, result.Error.Error())
+		return
+	}
+
+	imageData := model.Image{
+		UserID:      userID,
+		ImageBase64: image64.Image64,
+		Content:     resp.Choices[0].Message.Content,
+	}
+
+	if err := db.Create(&imageData).Error; err != nil {
+		helper.SendError(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	utils.SendResponse(c, http.StatusOK, "Image Saved Successfully")
 }
 
-// func putIntoDB(content string, ID uint, c *gin.Context) {
-// 	db := database.GetDB()
-// 	var drugDetails model.Image
-
-// 	if err := db.Where("user_id = ?", ID).First(&drugDetails).Error; err != nil {
-// 		if err == gorm.ErrRecordNotFound {
-// 			drugRec := model.Image{
-// 				ImageBase64: "<image-base-64>",
-// 				UserID:      ID,
-// 				Content:     content,
-// 			}
-// 			if err := db.Create(&drugRec).Error; err != nil {
-// 				utils.SendResponse(c, http.StatusInternalServerError, "Error in creating Drug record")
-// 				return
-// 			}
-// 		}
-// 	}
-// }
-
-// func GetUserFromJwt(c *gin.Context) {
-// 	authHeader := c.Request.Header.Get("Authorization")
-
-// 	userId, err := authHelper.ValidateToken(authHeader)
-
-// 	if err != nil {
-// 		utils.SendResponse(c, http.StatusUnauthorized, "Unauthorised")
-// 		return
-// 	}
-
-// 	var user User
-
-// 	db := database.GetDB()
-// 	err = db.First(&user, userId).Error
-
-// 	if err != nil {
-// 		utils.SendResponse(c, http.StatusBadRequest, err.Error())
-// 		return
-// 	}
-
-// 	generalHelper.SendResponse(c, http.StatusOK, user)
-// 	return
-// }
-
 func GetImageData(c *gin.Context) {
-	userId := c.Param("userId")
-	println(userId)
-	utils.SendResponse(c, http.StatusAccepted, "Images")
+	db := database.GetDB()
+	userID, err := authHelper.ValidateToken(c.Request.Header.Get("Authorization"))
 
+	print(userID)
+	if err != nil {
+		helper.SendError(c, http.StatusUnauthorized, "Unauthorised")
+	}
+	var images []model.Image
+
+	result := db.Find(&images, "user_id = ?", userID)
+	if result.Error != nil {
+		helper.SendError(c, http.StatusNotFound, result.Error.Error())
+		return
+	}
+
+	print(images)
+
+	utils.SendResponse(c, http.StatusAccepted, images)
 }

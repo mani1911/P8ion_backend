@@ -7,13 +7,12 @@ import (
 
 func UserRouter() {
 	userRoutes := Router.Group("/user")
-	userRoutes.POST("/signup", controller.SignupUser)
+
 	userRoutes.Use(middleware.Auth)
 	{
 		//Dummy Protected Route
-		userRoutes.GET("/user", controller.Dummy)
-		userRoutes.GET("/images/:userId", controller.GetImageData) //Jeeshnu
-		userRoutes.POST("/image", controller.ParseImage)           //Vezha
+		userRoutes.GET("/images", controller.GetImageData) //Jeeshnu
+		userRoutes.POST("/image", controller.ParseImage)   //Vezha
 	}
 	// userRoutes.GET("/getUser", controller.GetUserFromJwt)
 

@@ -38,8 +38,8 @@ func Run() {
 	<-quit
 	fmt.Println("Shutdown Server ...")
 
-	// Timeout of 2s
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	// Timeout of 5s
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 
 	defer cancel()
 	if err := server.Shutdown(ctx); err != nil {
