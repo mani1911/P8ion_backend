@@ -13,7 +13,6 @@ import (
 
 func Auth(c *gin.Context) {
 	authHeader := c.Request.Header.Get("Authorization")
-	fmt.Println("This : ", authHeader)
 
 	if authHeader == "" || len(authHeader) < 7 {
 		generalHelper.SendError(c, http.StatusUnauthorized, "Unauthorized")
